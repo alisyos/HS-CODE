@@ -68,7 +68,7 @@ const HSCodeSearch = () => {
     const lines = cleanContent.split('\n');
     let currentCode = null;
     let currentReason = '';
-    let currentPage = null;  // null로 초기화
+    let currentPage = null;
     
     lines.forEach((line) => {
       const trimmedLine = line.trim();
@@ -87,19 +87,20 @@ const HSCodeSearch = () => {
         // 새로운 코드 저장
         currentCode = codeMatch[1];
         currentReason = '';
-        currentPage = null;  // null로 초기화
+        currentPage = null;
       }
       // 설명 라인 확인 (하이픈으로 시작하는 줄)
       else if (trimmedLine.startsWith('-')) {
         const reasonText = trimmedLine.substring(1).trim();
         
         // 페이지 정보 추출 (섹션 페이지와 PDF 페이지 모두)
-        const pageMatch = reasonText.match(/([ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ]+)-[\d]+-[\d]+\s*\(PDF p\.(\d+)\)/);
+        const pageMatch = reasonText.match(/([ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ]+)-(\d+)-(\d+)\s*\(PDF p\.(\d+)\)/);
         
         if (pageMatch) {
           currentPage = {
             section: pageMatch[1],
-            page: pageMatch[2]
+            sectionPage: `${pageMatch[1]}-${pageMatch[2]}-${pageMatch[3]}`,
+            pdfPage: pageMatch[4]
           };
           // 페이지 정보를 제외한 나머지를 추천 사유로 저장
           currentReason = reasonText
@@ -122,20 +123,19 @@ const HSCodeSearch = () => {
       });
     }
     
-    console.log("파싱된 결과:", results);  // 디버깅용 로그 추가
     return results;
   };
 
   // PDF 뷰어를 여는 함수
   const openPdfAtPage = (page) => {
     try {
-      if (!page || !page.page) {
+      if (!page || !page.pdfPage) {
         console.error('유효하지 않은 페이지 정보:', page);
         return;
       }
       
       const pdfPath = `${window.location.origin}/api/pdf`;
-      const pageNumber = parseInt(page.page);
+      const pageNumber = parseInt(page.pdfPage);
       
       console.log('PDF 열기 시도:', {
         path: pdfPath,
@@ -162,7 +162,7 @@ const HSCodeSearch = () => {
 
   // 페이지 참조가 있는 경우에만 클릭 가능하도록 수정
   const renderPageRef = (page) => {
-    if (!page || !page.section || !page.page) {
+    if (!page || !page.section || !page.sectionPage || !page.pdfPage) {
       return (
         <p className="page-ref">
           출처: HS해설서 전문 (페이지 정보 없음)
@@ -177,7 +177,7 @@ const HSCodeSearch = () => {
         style={{ cursor: 'pointer' }}
         title="PDF에서 해당 페이지 열기"
       >
-        출처: HS해설서 전문 {page.section} (PDF p.{page.page})
+        출처: HS해설서 전문 {page.sectionPage} (PDF p.{page.pdfPage})
       </p>
     );
   };
