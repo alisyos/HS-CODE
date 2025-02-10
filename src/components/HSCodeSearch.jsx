@@ -93,26 +93,22 @@ const HSCodeSearch = () => {
       else if (trimmedLine.startsWith('-')) {
         const reasonText = trimmedLine.substring(1).trim();
         
-        // 페이지 정보 추출 (Ⅱ-숫자-숫자 또는 Ⅲ-숫자-숫자 등의 형식)
-        const pageMatch = reasonText.match(/([ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ])-[\d]+-[\d]+/);
+        // 페이지 정보 추출 (섹션 페이지와 PDF 페이지 모두)
+        const pageMatch = reasonText.match(/([ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ])-[\d]+-[\d]+\s*\(PDF p\.(\d+)\)/);
         
         if (pageMatch) {
-          currentPage = pageMatch[0];
+          currentPage = {
+            section: pageMatch[1],
+            page: pageMatch[2]
+          };
           // 페이지 정보를 제외한 나머지를 추천 사유로 저장
           currentReason = reasonText
-            .replace(pageMatch[0], '')  // 페이지 정보 제거
-            .replace(/\(\s*\)/g, '')    // 빈 괄호 제거
-            .replace(/\s+/g, ' ')       // 중복 공백 제거
-            .replace(/\(【[^】]*】\)/g, '') // 파일명 참조 제거
-            .replace(/【[^】]*】/g, '')     // 파일명 참조 제거 (괄호 없는 경우)
+            .replace(pageMatch[0], '')
+            .replace(/\(\s*\)/g, '')
+            .replace(/\s+/g, ' ')
             .trim();
         } else {
-          currentReason = reasonText
-            .replace(/\(\s*\)/g, '')    // 빈 괄호 제거
-            .replace(/\s+/g, ' ')       // 중복 공백 제거
-            .replace(/\(【[^】]*】\)/g, '') // 파일명 참조 제거
-            .replace(/【[^】]*】/g, '')     // 파일명 참조 제거 (괄호 없는 경우)
-            .trim();
+          currentReason = reasonText;
         }
       }
     });
@@ -133,30 +129,22 @@ const HSCodeSearch = () => {
   // PDF 뷰어를 여는 함수
   const openPdfAtPage = (page) => {
     try {
-      // 페이지 번호에서 숫자만 추출
-      const pageMatch = page.match(/Ⅱ-(\d+)-(\d+)/);
-      if (!pageMatch) {
-        console.error('유효하지 않은 페이지 형식:', page);
+      if (!page || !page.page) {
+        console.error('유효하지 않은 페이지 정보:', page);
         return;
       }
       
-      // 현재 실행 중인 서버의 origin을 사용
       const pdfPath = `${window.location.origin}/api/pdf`;
-      
-      // 페이지 번호 추출
-      const pageNumber = parseInt(pageMatch[1]);
+      const pageNumber = parseInt(page.page);
       
       console.log('PDF 열기 시도:', {
         path: pdfPath,
-        page: pageNumber,
-        originalPage: page
+        page: pageNumber
       });
 
-      // PDF 파일 존재 여부 확인
       fetch(pdfPath)
         .then(response => {
           if (response.ok) {
-            // PDF 파일이 존재하면 새 창에서 열기
             window.open(`${pdfPath}#page=${pageNumber}`, '_blank', 'noopener,noreferrer');
           } else {
             throw new Error(`PDF 파일을 찾을 수 없습니다 (${response.status})`);
@@ -166,7 +154,6 @@ const HSCodeSearch = () => {
           console.error('PDF 파일 오류:', error);
           alert('PDF 파일을 찾을 수 없습니다. 파일 경로를 확인해주세요.');
         });
-
     } catch (error) {
       console.error('PDF 열기 중 오류 발생:', error);
       alert('PDF 열기 중 오류가 발생했습니다.');
@@ -175,7 +162,7 @@ const HSCodeSearch = () => {
 
   // 페이지 참조가 있는 경우에만 클릭 가능하도록 수정
   const renderPageRef = (page) => {
-    if (!page || page.length === 0) {
+    if (!page || !page.section || !page.page) {
       return (
         <p className="page-ref">
           출처: HS해설서 전문 (페이지 정보 없음)
@@ -190,7 +177,7 @@ const HSCodeSearch = () => {
         style={{ cursor: 'pointer' }}
         title="PDF에서 해당 페이지 열기"
       >
-        출처: HS해설서 전문 {page}
+        출처: HS해설서 전문 {page.section} (PDF p.{page.page})
       </p>
     );
   };
