@@ -140,8 +140,8 @@ const HSCodeSearch = () => {
         return;
       }
       
-      // 백엔드 서버의 PDF 엔드포인트 사용
-      const pdfPath = 'http://localhost:5000/api/pdf';
+      // 현재 실행 중인 서버의 origin을 사용
+      const pdfPath = `${window.location.origin}/api/pdf`;
       
       // 페이지 번호 추출
       const pageNumber = parseInt(pageMatch[1]);
