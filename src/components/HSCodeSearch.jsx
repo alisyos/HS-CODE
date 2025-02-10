@@ -68,7 +68,7 @@ const HSCodeSearch = () => {
     const lines = cleanContent.split('\n');
     let currentCode = null;
     let currentReason = '';
-    let currentPage = '';
+    let currentPage = null;  // null로 초기화
     
     lines.forEach((line) => {
       const trimmedLine = line.trim();
@@ -81,20 +81,20 @@ const HSCodeSearch = () => {
           results.push({
             code: currentCode,
             reason: currentReason.trim(),
-            page: currentPage.trim()
+            page: currentPage
           });
         }
         // 새로운 코드 저장
         currentCode = codeMatch[1];
         currentReason = '';
-        currentPage = '';
+        currentPage = null;  // null로 초기화
       }
       // 설명 라인 확인 (하이픈으로 시작하는 줄)
       else if (trimmedLine.startsWith('-')) {
         const reasonText = trimmedLine.substring(1).trim();
         
         // 페이지 정보 추출 (섹션 페이지와 PDF 페이지 모두)
-        const pageMatch = reasonText.match(/([ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ])-[\d]+-[\d]+\s*\(PDF p\.(\d+)\)/);
+        const pageMatch = reasonText.match(/([ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ]+)-[\d]+-[\d]+\s*\(PDF p\.(\d+)\)/);
         
         if (pageMatch) {
           currentPage = {
@@ -117,12 +117,12 @@ const HSCodeSearch = () => {
     if (currentCode && currentReason) {
       results.push({
         code: currentCode,
-        reason: currentReason,
+        reason: currentReason.trim(),
         page: currentPage
       });
     }
     
-    console.log("파싱된 결과:", results);
+    console.log("파싱된 결과:", results);  // 디버깅용 로그 추가
     return results;
   };
 
