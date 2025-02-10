@@ -126,26 +126,27 @@ const HSCodeSearch = () => {
     return results;
   };
 
-  // PDF 뷰어를 여는 함수
+  // PDF 뷰어를 여는 함수 수정
   const openPdfAtPage = (page) => {
     try {
-      if (!page || !page.pdfPage) {
+      if (!page || !page.sectionPage) {
         console.error('유효하지 않은 페이지 정보:', page);
         return;
       }
       
       const pdfPath = `${window.location.origin}/api/pdf`;
-      const pageNumber = parseInt(page.pdfPage);
+      const sectionPage = page.sectionPage; // 예: "ⅩⅢ-7013-1"
       
       console.log('PDF 열기 시도:', {
         path: pdfPath,
-        page: pageNumber
+        section: sectionPage
       });
 
       fetch(pdfPath)
         .then(response => {
           if (response.ok) {
-            window.open(`${pdfPath}#page=${pageNumber}`, '_blank', 'noopener,noreferrer');
+            // 섹션 페이지로 이동하는 URL 생성
+            window.open(`${pdfPath}#search="${sectionPage}"`, '_blank', 'noopener,noreferrer');
           } else {
             throw new Error(`PDF 파일을 찾을 수 없습니다 (${response.status})`);
           }
@@ -160,9 +161,9 @@ const HSCodeSearch = () => {
     }
   };
 
-  // 페이지 참조가 있는 경우에만 클릭 가능하도록 수정
+  // 페이지 참조 렌더링 함수 수정
   const renderPageRef = (page) => {
-    if (!page || !page.section || !page.sectionPage || !page.pdfPage) {
+    if (!page || !page.section || !page.sectionPage) {
       return (
         <p className="page-ref">
           출처: HS해설서 전문 (페이지 정보 없음)
@@ -175,9 +176,9 @@ const HSCodeSearch = () => {
         className="page-ref"
         onClick={() => openPdfAtPage(page)}
         style={{ cursor: 'pointer' }}
-        title="PDF에서 해당 페이지 열기"
+        title="PDF에서 해당 섹션 찾기"
       >
-        출처: HS해설서 전문 {page.sectionPage} (PDF p.{page.pdfPage})
+        출처: HS해설서 전문 {page.sectionPage}
       </p>
     );
   };
