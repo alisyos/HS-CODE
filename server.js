@@ -10,8 +10,8 @@ const port = process.env.PORT || 10000;
 app.use(cors());
 app.use(express.json());
 
-// React 빌드 파일 제공
-app.use(express.static(path.join(__dirname, 'hs-code-search/build')));
+// React 빌드 파일 제공 (경로 수정)
+app.use(express.static(path.join(__dirname, 'build')));
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -70,9 +70,9 @@ app.get('/api/pdf', (req, res) => {
   res.sendFile(pdfPath);
 });
 
-// 그 외 모든 요청은 React 앱으로 전달
+// 그 외 모든 요청은 React 앱으로 전달 (경로 수정)
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'hs-code-search/build', 'index.html'));
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 app.listen(port, () => {
