@@ -91,25 +91,16 @@ const HSCodeSearch = () => {
       }
       // 설명 라인 확인 (하이픈으로 시작하는 줄)
       else if (trimmedLine.startsWith('-')) {
-        const reasonText = trimmedLine.substring(1).trim();
-        
-        // 페이지 정보 추출 (섹션 페이지와 PDF 페이지 모두)
-        const pageMatch = reasonText.match(/([ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ]+)-(\d+)-(\d+)\s*\(PDF p\.(\d+)\)/);
-        
+        currentReason = trimmedLine.substring(1).trim();
+      }
+      // 섹션 페이지 라인 확인 (공백으로 시작하는 줄)
+      else if (trimmedLine.match(/^\s*([ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ]+)-(\d+)-(\d+)/)) {
+        const pageMatch = trimmedLine.match(/([ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ]+)-(\d+)-(\d+)/);
         if (pageMatch) {
           currentPage = {
             section: pageMatch[1],
-            sectionPage: `${pageMatch[1]}-${pageMatch[2]}-${pageMatch[3]}`,
-            pdfPage: pageMatch[4]
+            sectionPage: pageMatch[0]
           };
-          // 페이지 정보를 제외한 나머지를 추천 사유로 저장
-          currentReason = reasonText
-            .replace(pageMatch[0], '')
-            .replace(/\(\s*\)/g, '')
-            .replace(/\s+/g, ' ')
-            .trim();
-        } else {
-          currentReason = reasonText;
         }
       }
     });
