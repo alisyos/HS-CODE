@@ -126,24 +126,37 @@ const HSCodeSearch = () => {
       }
       
       const pdfPath = `${window.location.origin}/api/pdf`;
-      const sectionPage = page.sectionPage; // 예: "ⅩⅢ-7013-1"
+      const sectionPage = encodeURIComponent(page.sectionPage); // URL 인코딩
       
       console.log('PDF 열기 시도:', {
         path: pdfPath,
         section: sectionPage
       });
 
+      // PDF 뷰어를 새 창으로 열기
+      const pdfWindow = window.open('', '_blank');
+      
       fetch(pdfPath)
         .then(response => {
           if (response.ok) {
-            // 섹션 페이지로 이동하는 URL 생성
-            window.open(`${pdfPath}#search="${sectionPage}"`, '_blank', 'noopener,noreferrer');
+            // PDF 로드 후 검색 스크립트 실행
+            pdfWindow.location.href = pdfPath;
+            pdfWindow.onload = () => {
+              pdfWindow.PDFViewerApplication.findController.executeCommand('find', {
+                query: sectionPage,
+                phraseSearch: true,
+                caseSensitive: true,
+                highlightAll: true,
+                findPrevious: false
+              });
+            };
           } else {
             throw new Error(`PDF 파일을 찾을 수 없습니다 (${response.status})`);
           }
         })
         .catch(error => {
           console.error('PDF 파일 오류:', error);
+          pdfWindow.close();
           alert('PDF 파일을 찾을 수 없습니다. 파일 경로를 확인해주세요.');
         });
     } catch (error) {
