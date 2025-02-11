@@ -1,20 +1,38 @@
 const express = require('express');
 const router = express.Router();
 
-// 섹션 페이지를 실제 PDF 페이지로 변환하는 엔드포인트 추가
+// 페이지 매핑 엔드포인트
 router.get('/page-mapping/:sectionPage', (req, res) => {
   try {
     const { sectionPage } = req.params;
     console.log('요청된 섹션 페이지:', sectionPage);
     
-    // 임시 매핑 로직
-    const actualPage = 558; // 테스트용 고정값
+    // 테스트용 매핑 데이터
+    const mappings = {
+      'Ⅶ-3926-1': 558,
+      'Ⅱ-1203-1': 123,
+      // 다른 매핑 추가 예정
+    };
+    
+    const actualPage = mappings[sectionPage] || 1;
+    
+    // CORS 헤더 추가
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Content-Type', 'application/json');
     
     // JSON 응답 전송
-    res.json({ actualPage });
+    res.json({ 
+      success: true,
+      actualPage,
+      sectionPage 
+    });
+    
   } catch (error) {
     console.error('페이지 매핑 오류:', error);
-    res.status(500).json({ error: '페이지 매핑 중 오류가 발생했습니다.' });
+    res.status(500).json({ 
+      success: false, 
+      error: '페이지 매핑 중 오류가 발생했습니다.' 
+    });
   }
 });
 
