@@ -118,7 +118,7 @@ const HSCodeSearch = () => {
   };
 
   // PDF 뷰어를 여는 함수 수정
-  const openPdfAtPage = (page) => {
+  const openPdfAtPage = async (page) => {
     try {
       if (!page || !page.sectionPage) {
         console.error('유효하지 않은 페이지 정보:', page);
@@ -127,23 +127,22 @@ const HSCodeSearch = () => {
       
       const pdfPath = `${window.location.origin}/api/pdf`;
       
-      // 섹션 참조 번호를 기반으로 실제 PDF 페이지 매핑
-      // 예: "Ⅶ-3926-1" -> 실제 PDF 페이지 번호로 매핑
-      const sectionPageMap = {
-        'Ⅶ-3926-1': 558,  // 예시 페이지 번호
-        // 다른 섹션 페이지 매핑 추가
-      };
+      // 서버에서 실제 페이지 번호 가져오기
+      const response = await fetch(`${window.location.origin}/api/page-mapping/${encodeURIComponent(page.sectionPage)}`);
+      if (!response.ok) {
+        throw new Error('페이지 매핑을 가져오는데 실패했습니다.');
+      }
       
-      const pageNumber = sectionPageMap[page.sectionPage] || 1;
+      const { actualPage } = await response.json();
       
       console.log('PDF 열기 시도:', {
         path: pdfPath,
         sectionPage: page.sectionPage,
-        actualPage: pageNumber
+        actualPage
       });
 
       // 특정 페이지로 이동하는 URL 생성
-      const pdfUrl = `${pdfPath}#page=${pageNumber}`;
+      const pdfUrl = `${pdfPath}#page=${actualPage}`;
       
       // 새 창에서 PDF 열기
       window.open(pdfUrl, '_blank');
