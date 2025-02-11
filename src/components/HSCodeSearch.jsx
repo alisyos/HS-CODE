@@ -125,15 +125,23 @@ const HSCodeSearch = () => {
         return;
       }
       
-      const pdfPath = `${window.location.origin}/api/pdf`;
+      const apiBaseUrl = window.location.origin;
+      const pdfPath = `${apiBaseUrl}/api/pdf`;
       
-      // API 호출 수정
-      const response = await fetch(`/api/page-mapping/${encodeURIComponent(page.sectionPage)}`);
+      // API 호출 경로 수정
+      console.log('섹션 페이지:', page.sectionPage);
+      const mappingUrl = `${apiBaseUrl}/api/page-mapping/${encodeURIComponent(page.sectionPage)}`;
+      console.log('API 호출 URL:', mappingUrl);
+      
+      const response = await fetch(mappingUrl);
       if (!response.ok) {
-        throw new Error('페이지 매핑을 가져오는데 실패했습니다.');
+        const errorText = await response.text();
+        console.error('API 응답 에러:', errorText);
+        throw new Error(`페이지 매핑을 가져오는데 실패했습니다. 상태: ${response.status}`);
       }
       
-      const { actualPage } = await response.json();
+      const data = await response.json();
+      const actualPage = data.actualPage;
       
       console.log('PDF 열기 시도:', {
         path: pdfPath,
@@ -149,6 +157,7 @@ const HSCodeSearch = () => {
 
     } catch (error) {
       console.error('PDF 열기 중 오류 발생:', error);
+      console.error('오류 상세:', error.message);
       alert('PDF 열기 중 오류가 발생했습니다.');
     }
   };
