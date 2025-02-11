@@ -127,8 +127,8 @@ const HSCodeSearch = () => {
       
       const pdfPath = `${window.location.origin}/api/pdf`;
       
-      // 서버에서 실제 페이지 번호 가져오기
-      const response = await fetch(`${window.location.origin}/api/page-mapping/${encodeURIComponent(page.sectionPage)}`);
+      // API 호출 수정
+      const response = await fetch(`/api/page-mapping/${encodeURIComponent(page.sectionPage)}`);
       if (!response.ok) {
         throw new Error('페이지 매핑을 가져오는데 실패했습니다.');
       }
