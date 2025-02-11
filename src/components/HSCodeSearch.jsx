@@ -128,22 +128,34 @@ const HSCodeSearch = () => {
       const apiBaseUrl = window.location.origin;
       const pdfPath = `${apiBaseUrl}/api/pdf`;
       
-      // API 호출 경로 수정
-      console.log('섹션 페이지:', page.sectionPage);
+      // API 호출 경로 수정 및 디버깅 정보 추가
       const mappingUrl = `${apiBaseUrl}/api/page-mapping/${encodeURIComponent(page.sectionPage)}`;
-      console.log('API 호출 URL:', mappingUrl);
+      console.log('API 요청 URL:', mappingUrl);
       
       const response = await fetch(mappingUrl);
+      console.log('API 응답 상태:', response.status, response.statusText);
+      console.log('API 응답 헤더:', Object.fromEntries(response.headers.entries()));
+      
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('API 응답 에러:', errorText);
-        throw new Error(`페이지 매핑을 가져오는데 실패했습니다. 상태: ${response.status}`);
+        console.error('API 오류 응답:', errorText);
+        throw new Error(`API 요청 실패: ${response.status} ${response.statusText}`);
       }
       
-      const data = await response.json();
+      const responseText = await response.text();
+      console.log('API 응답 내용:', responseText);
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON 파싱 오류:', parseError);
+        throw new Error('서버 응답을 파싱할 수 없습니다');
+      }
+      
       const actualPage = data.actualPage;
       
-      console.log('PDF 열기 시도:', {
+      console.log('PDF 페이지 정보:', {
         path: pdfPath,
         sectionPage: page.sectionPage,
         actualPage
@@ -158,7 +170,7 @@ const HSCodeSearch = () => {
     } catch (error) {
       console.error('PDF 열기 중 오류 발생:', error);
       console.error('오류 상세:', error.message);
-      alert('PDF 열기 중 오류가 발생했습니다.');
+      alert('PDF 열기 중 오류가 발생했습니다. 자세한 내용은 콘솔을 확인해주세요.');
     }
   };
 
