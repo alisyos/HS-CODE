@@ -7,8 +7,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// API 라우트 핸들러
-app.get('/api/page-mapping/:sectionPage', (req, res) => {
+// API 라우트를 별도의 경로로 변경
+app.get('/page-mapping/:sectionPage', (req, res) => {
   try {
     const { sectionPage } = req.params;
     console.log('요청된 섹션 페이지:', sectionPage);
@@ -17,7 +17,7 @@ app.get('/api/page-mapping/:sectionPage', (req, res) => {
     const mappings = {
       'Ⅶ-3926-1': 558,
       'Ⅱ-1203-1': 123,
-      'Ⅶ-4203-1': 600,  // 예시 페이지 번호
+      'Ⅶ-4203-1': 600,
     };
     
     const actualPage = mappings[sectionPage] || 1;
@@ -40,16 +40,13 @@ app.get('/api/page-mapping/:sectionPage', (req, res) => {
 });
 
 // PDF 파일 제공
-app.get('/api/pdf', (req, res) => {
-  // 기존 PDF 제공 코드
+app.get('/pdf', (req, res) => {
   const pdfPath = path.join(__dirname, '../data/hs_explanation.pdf');
   res.sendFile(pdfPath);
 });
 
-// 정적 파일 제공
+// 정적 파일은 마지막에 처리
 app.use(express.static(path.join(__dirname, '../client/build')));
-
-// 클라이언트 라우팅
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });

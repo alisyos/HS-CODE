@@ -126,10 +126,10 @@ const HSCodeSearch = () => {
       }
       
       const apiBaseUrl = window.location.origin;
-      const pdfPath = `${apiBaseUrl}/api/pdf`;
+      const pdfPath = `${apiBaseUrl}/pdf`;
       
-      // API 호출 경로 수정 및 디버깅 정보 추가
-      const mappingUrl = `${apiBaseUrl}/api/page-mapping/${encodeURIComponent(page.sectionPage)}`;
+      // API 호출 경로 수정
+      const mappingUrl = `${apiBaseUrl}/page-mapping/${encodeURIComponent(page.sectionPage)}`;
       console.log('API 요청 URL:', mappingUrl);
       
       const response = await fetch(mappingUrl);
