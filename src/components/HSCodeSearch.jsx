@@ -126,16 +126,17 @@ const HSCodeSearch = () => {
       }
       
       const pdfPath = `${window.location.origin}/api/pdf`;
-      const sectionPage = page.sectionPage; // 예: "Ⅱ-1203-1"
+      
+      // 섹션 페이지 번호에서 숫자만 추출 (예: "Ⅱ-1203-1" -> "1203")
+      const pageNumber = page.sectionPage.match(/\d+/)[0];
       
       console.log('PDF 열기 시도:', {
         path: pdfPath,
-        section: sectionPage
+        page: pageNumber
       });
 
-      // 크롬 PDF 뷰어의 검색 기능을 사용하기 위한 URL 생성
-      const searchQuery = encodeURIComponent(sectionPage);
-      const pdfUrl = `${pdfPath}#search=${searchQuery}`;
+      // 특정 페이지로 이동하는 URL 생성
+      const pdfUrl = `${pdfPath}#page=${pageNumber}`;
       
       // 새 창에서 PDF 열기
       window.open(pdfUrl, '_blank');
