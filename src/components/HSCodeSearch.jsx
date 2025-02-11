@@ -127,12 +127,19 @@ const HSCodeSearch = () => {
       
       const pdfPath = `${window.location.origin}/api/pdf`;
       
-      // 섹션 페이지 번호에서 숫자만 추출 (예: "Ⅱ-1203-1" -> "1203")
-      const pageNumber = page.sectionPage.match(/\d+/)[0];
+      // 섹션 참조 번호를 기반으로 실제 PDF 페이지 매핑
+      // 예: "Ⅶ-3926-1" -> 실제 PDF 페이지 번호로 매핑
+      const sectionPageMap = {
+        'Ⅶ-3926-1': 558,  // 예시 페이지 번호
+        // 다른 섹션 페이지 매핑 추가
+      };
+      
+      const pageNumber = sectionPageMap[page.sectionPage] || 1;
       
       console.log('PDF 열기 시도:', {
         path: pdfPath,
-        page: pageNumber
+        sectionPage: page.sectionPage,
+        actualPage: pageNumber
       });
 
       // 특정 페이지로 이동하는 URL 생성
