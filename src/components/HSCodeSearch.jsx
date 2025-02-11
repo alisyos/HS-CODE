@@ -126,20 +126,18 @@ const HSCodeSearch = () => {
       }
       
       const apiBaseUrl = window.location.origin;
-      const pdfPath = `${apiBaseUrl}/pdf`;
+      const pdfPath = `${apiBaseUrl}/api/pdf`;
       
-      // 섹션 페이지에서 숫자만 추출 (예: "Ⅱ-1203-1" -> 1203)
-      const pageMatch = page.sectionPage.match(/\d+/);
-      const pageNumber = pageMatch ? pageMatch[0] : '1';
+      // 섹션 페이지 전체 값을 검색어로 사용
+      const searchQuery = encodeURIComponent(page.sectionPage);
       
       console.log('PDF 열기 시도:', {
         path: pdfPath,
-        sectionPage: page.sectionPage,
-        pageNumber
+        searchQuery: page.sectionPage
       });
 
-      // 특정 페이지로 이동하는 URL 생성
-      const pdfUrl = `${pdfPath}#page=${pageNumber}`;
+      // 검색어를 포함한 URL 생성
+      const pdfUrl = `${pdfPath}#search=${searchQuery}`;
       
       // 새 창에서 PDF 열기
       window.open(pdfUrl, '_blank');
