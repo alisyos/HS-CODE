@@ -118,7 +118,7 @@ const HSCodeSearch = () => {
   };
 
   // PDF 뷰어를 여는 함수 수정
-  const openPdfAtPage = async (page) => {
+  const openPdfAtPage = (page) => {
     try {
       if (!page || !page.sectionPage) {
         console.error('유효하지 않은 페이지 정보:', page);
@@ -128,49 +128,25 @@ const HSCodeSearch = () => {
       const apiBaseUrl = window.location.origin;
       const pdfPath = `${apiBaseUrl}/pdf`;
       
-      // API 호출 경로 수정
-      const mappingUrl = `${apiBaseUrl}/page-mapping/${encodeURIComponent(page.sectionPage)}`;
-      console.log('API 요청 URL:', mappingUrl);
+      // 섹션 페이지에서 숫자만 추출 (예: "Ⅱ-1203-1" -> 1203)
+      const pageMatch = page.sectionPage.match(/\d+/);
+      const pageNumber = pageMatch ? pageMatch[0] : '1';
       
-      const response = await fetch(mappingUrl);
-      console.log('API 응답 상태:', response.status, response.statusText);
-      console.log('API 응답 헤더:', Object.fromEntries(response.headers.entries()));
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API 오류 응답:', errorText);
-        throw new Error(`API 요청 실패: ${response.status} ${response.statusText}`);
-      }
-      
-      const responseText = await response.text();
-      console.log('API 응답 내용:', responseText);
-      
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('JSON 파싱 오류:', parseError);
-        throw new Error('서버 응답을 파싱할 수 없습니다');
-      }
-      
-      const actualPage = data.actualPage;
-      
-      console.log('PDF 페이지 정보:', {
+      console.log('PDF 열기 시도:', {
         path: pdfPath,
         sectionPage: page.sectionPage,
-        actualPage
+        pageNumber
       });
 
       // 특정 페이지로 이동하는 URL 생성
-      const pdfUrl = `${pdfPath}#page=${actualPage}`;
+      const pdfUrl = `${pdfPath}#page=${pageNumber}`;
       
       // 새 창에서 PDF 열기
       window.open(pdfUrl, '_blank');
 
     } catch (error) {
       console.error('PDF 열기 중 오류 발생:', error);
-      console.error('오류 상세:', error.message);
-      alert('PDF 열기 중 오류가 발생했습니다. 자세한 내용은 콘솔을 확인해주세요.');
+      alert('PDF 열기 중 오류가 발생했습니다.');
     }
   };
 
